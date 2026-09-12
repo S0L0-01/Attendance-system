@@ -1,0 +1,109 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}Create Account - AttendancePro{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-10 col-lg-8 animate-fade-in-up">
+        <div class="glass-card p-4 p-md-5 shadow-lg border-primary border-opacity-25">
+            <div class="text-center mb-4">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem; border-radius: 20px;">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h3 class="fw-bold">Student Registration</h3>
+                <p class="text-muted small">Create your account and start tracking your academic presence</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="alert alert-danger rounded-3 border-0 shadow-sm mb-4 animate-fade-in-up">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-circle-exclamation text-danger mt-1"></i>
+                            <div class="flex-grow-1">
+                                <strong class="d-block mb-1">Please correct the following errors:</strong>
+                                <ul class="mb-0 ps-3">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <li class="small">{{ field.label }}: {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                        <li class="small">{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">FIRST NAME</label>
+                        <input type="text" name="first_name" class="form-control form-glass {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" required placeholder="John">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">LAST NAME</label>
+                        <input type="text" name="last_name" class="form-control form-glass {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" required placeholder="Doe">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">USERNAME</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-glass-subtle text-muted"><i class="fa-solid fa-at"></i></span>
+                            <input type="text" name="username" class="form-control form-glass {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required placeholder="Choose a unique username">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">ROLL NUMBER</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-glass-subtle text-muted"><i class="fa-solid fa-hashtag"></i></span>
+                            <input type="text" name="roll_number" class="form-control form-glass {% if form.roll_number.errors %}is-invalid{% endif %}" value="{{ form.roll_number.value|default:'' }}" required placeholder="e.g. CS2026-042">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">EMAIL ADDRESS (For Attendance Reports)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-glass-subtle text-muted"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" name="email" class="form-control form-glass {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required placeholder="your.email@example.com">
+                        </div>
+                        <div class="form-text small"><i class="fa-solid fa-circle-info me-1 text-primary"></i> We'll send attendance reports to this email address.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">PHONE NUMBER (Optional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-glass-subtle text-muted"><i class="fa-solid fa-phone"></i></span>
+                            <input type="text" name="phone" class="form-control form-glass {% if form.phone.errors %}is-invalid{% endif %}" value="{{ form.phone.value|default:'' }}" placeholder="+1234567890">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">PASSWORD</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-glass-subtle text-muted"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" name="password1" class="form-control form-glass {% if form.password1.errors %}is-invalid{% endif %}" required placeholder="••••••••">
+                        </div>
+                        <div class="form-text small"><i class="fa-solid fa-shield-halved me-1 text-success"></i> At least 8 characters, not entirely numeric</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">CONFIRM PASSWORD</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-glass-subtle text-muted"><i class="fa-solid fa-lock-open"></i></span>
+                            <input type="password" name="password2" class="form-control form-glass {% if form.password2.errors %}is-invalid{% endif %}" required placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary-gradient w-100 py-3 fw-bold">
+                        <i class="fa-solid fa-user-check me-2"></i>Create My Account
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-4 pt-3 border-top border-glass-subtle text-center">
+                <small class="text-muted">Already have an account? <a href="{% url 'login' %}" class="text-primary fw-bold text-decoration-none">Sign in here</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

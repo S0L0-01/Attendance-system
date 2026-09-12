@@ -1,0 +1,52 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}Attendance Calendar / History{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold"><i class="fa-solid fa-calendar-check me-2 text-primary"></i>Recent Attendance History (Last 30 Days)</h2>
+        <p class="text-muted">Showing all recorded attendances from {{ start_date|date:"M d, Y" }} to {{ end_date|date:"M d, Y" }}</p>
+    </div>
+</div>
+
+<div class="card p-4 shadow-sm">
+    {% if attendances %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendances %}
+                    <tr>
+                        <td><strong>{{ record.date|date:"l, F d, Y" }}</strong></td>
+                        <td><span class="badge bg-light text-dark border">{{ record.subject.code }}</span> {{ record.subject.name }}</td>
+                        <td>
+                            {% if record.status == 'P' %}
+                                <span class="badge bg-success">Present</span>
+                            {% elif record.status == 'A' %}
+                                <span class="badge bg-danger">Absent</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Late</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ record.remarks|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="fa-regular fa-calendar-xmark fa-3x mb-2"></i>
+            <p>No attendance logs in the last 30 days.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

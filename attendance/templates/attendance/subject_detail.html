@@ -1,0 +1,65 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}{{ subject.name }} - Attendance Detail{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+            <h2 class="fw-bold mb-1">{{ subject.code }}: {{ subject.name }}</h2>
+            <p class="text-muted">{{ subject.description|default:"No description provided." }}</p>
+        </div>
+        {% if percentage %}
+        <div class="text-md-end">
+            <h3 class="fw-bold {% if percentage.percentage >= 75 %}text-success{% else %}text-danger{% endif %} mb-0">
+                {{ percentage.percentage|floatformat:1 }}%
+            </h3>
+            <small class="text-muted">{{ percentage.classes_attended }} / {{ percentage.total_classes }} classes attended</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card p-4 shadow-sm">
+    <h4 class="fw-bold mb-3"><i class="fa-regular fa-calendar-days me-2 text-primary"></i>Attendance History Logs</h4>
+    {% if attendances %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Logged At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendances %}
+                    <tr>
+                        <td><strong>{{ record.date|date:"F d, Y" }}</strong></td>
+                        <td>
+                            {% if record.status == 'P' %}
+                                <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Present</span>
+                            {% elif record.status == 'A' %}
+                                <span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i> Absent</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="fa-regular fa-clock me-1"></i> Late</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ record.remarks|default:"-" }}</td>
+                        <td class="text-muted small">{{ record.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-4 text-muted">
+            <p>No class records logged yet for this subject.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

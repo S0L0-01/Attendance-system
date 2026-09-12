@@ -1,0 +1,135 @@
+{% extends 'attendance/base.html' %}
+
+{% block title %}Dashboard - {{ student.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold"><i class="fa-solid fa-user-graduate me-2 text-primary"></i>Student Dashboard</h2>
+        <p class="text-muted mb-0">Welcome, <strong>{{ student.user.get_full_name }}</strong> (Roll No: {{ student.roll_number }}) | Email: {{ student.email }}</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'send_email' %}" class="btn btn-success">
+            <i class="fa-solid fa-paper-plane me-1"></i> Email Me My Attendance
+        </a>
+    </div>
+</div>
+
+<!-- Overview Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card p-3 border-start border-primary border-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Total Subjects</h6>
+                    <h3 class="fw-bold mb-0">{{ total_subjects }}</h3>
+                </div>
+                <i class="fa-solid fa-book-open fa-2x text-primary opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 border-start {% if avg_attendance >= 75 %}border-success{% else %}border-danger{% endif %} border-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Average Attendance</h6>
+                    <h3 class="fw-bold mb-0 {% if avg_attendance >= 75 %}text-success{% else %}text-danger{% endif %}">
+                        {{ avg_attendance|floatformat:1 }}%
+                    </h3>
+                </div>
+                <i class="fa-solid fa-chart-pie fa-2x {% if avg_attendance >= 75 %}text-success{% else %}text-danger{% endif %} opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-3 border-start border-warning border-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Shortage Alerts (<75%)</h6>
+                    <h3 class="fw-bold mb-0 text-warning">{{ low_attendance.count }}</h3>
+                </div>
+                <i class="fa-solid fa-triangle-exclamation fa-2x text-warning opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if low_attendance %}
+<div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+    <i class="fa-solid fa-triangle-exclamation flex-shrink-0 me-2 fa-lg"></i>
+    <div>
+        <strong>Attendance Warning:</strong> You have low attendance (below 75%) in
+        {% for item in low_attendance %}
+            <span class="badge bg-danger">{{ item.subject.code }} ({{ item.percentage|floatformat:1 }}%)</span>{% if not forloop.last %}, {% endif %}
+        {% endfor %}.
+    </div>
+</div>
+{% endif %}
+
+<!-- Subject-wise Attendance List -->
+<div class="card p-4 shadow-sm mb-4">
+    <h4 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2 text-primary"></i>Subject-wise Attendance Percentage</h4>
+    {% if percentages %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th>Classes Attended</th>
+                        <th>Total Classes</th>
+                        <th>Percentage</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in percentages %}
+                    <tr>
+                        <td><strong>{{ item.subject.code }}</strong></td>
+                        <td>{{ item.subject.name }}</td>
+                        <td>{{ item.classes_attended }}</td>
+                        <td>{{ item.total_classes }}</td>
+                        <td style="min-width: 150px;">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px;">
+                                    <div class="progress-bar {% if item.percentage >= 75 %}bg-success{% elif item.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}"
+                                         role="progressbar"
+                                         style="width: {{ item.percentage }}%;"
+                                         aria-valuenow="{{ item.percentage }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <span class="fw-bold {% if item.percentage >= 75 %}text-success{% elif item.percentage >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                    {{ item.percentage|floatformat:1 }}%
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if item.percentage >= 75 %}
+                                <span class="badge bg-success">Good</span>
+                            {% elif item.percentage >= 60 %}
+                                <span class="badge bg-warning text-dark">Average</span>
+                            {% else %}
+                                <span class="badge bg-danger">Critical</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'subject_detail' item.subject.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fa-solid fa-eye me-1"></i> View Logs
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-4 text-muted">
+            <i class="fa-solid fa-folder-open fa-3x mb-2"></i>
+            <p>No subjects or attendance data found. Please ask your administrator/faculty to add attendance records.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
